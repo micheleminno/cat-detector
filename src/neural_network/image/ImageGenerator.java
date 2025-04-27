@@ -19,36 +19,29 @@ public class ImageGenerator {
 	}
 
 	public BufferedImage generateCatImage(double randomness) {
-		// Crea un vettore di input casuale
-		double[] randomInput = new double[2]; // 2 valori casuali (uno per ogni neurone di output)
+		// Crea un vettore di input casuale con un po' di rumore controllato
+		double[] randomInput = new double[2];
 		for (int i = 0; i < randomInput.length; i++) {
-			randomInput[i] = Math.random() * randomness;
+			randomInput[i] = ((Math.random() * 2) - 1) * randomness; // random tra -randomness e +randomness
 		}
 
-		// Inverte il processo della rete neurale
 		double[] generatedPixels = this.invertNetwork(randomInput);
-
-		// Converti i pixel in un'immagine
 		return this.pixelsToImage(generatedPixels);
 	}
 
 	private double[] invertNetwork(double[] input) {
-		// Prendiamo i pesi e i bias dell'unico layer
-		double[][] weights = this.nn.getWeights()[0]; // Dimensioni: [2][2500]
+		double[][] weights = this.nn.getWeights()[0]; // [2][2500]
+		double[] biases = this.nn.getBiases()[0]; // [2]
 
-		// TODO: perché biases non è usato qui?
-		// double[] biases = this.nn.getBiases()[0]; // Dimensioni: [2]
-
-		// Creiamo l'array per i nuovi valori
-		double[] newCurrent = new double[2500]; // Vogliamo generare un'immagine 50x50 (2500 pixel)
+		double[] newCurrent = new double[2500];
 
 		// Applichiamo la trasformazione inversa
 		for (int i = 0; i < 2500; i++) {
 			double sum = 0.0;
-			for (int j = 0; j < 2; j++) { // Iteriamo sui 2 neuroni di output
-				sum += weights[j][i] * input[j]; // Usiamo i pesi in modo inverso
+			for (int j = 0; j < 2; j++) {
+				sum += (weights[j][i] * input[j]) + biases[j]; // ⚡ adesso usiamo anche i bias!
 			}
-			newCurrent[i] = this.relu(sum); // Usiamo la ReLU per limitare i valori tra 0 e 1
+			newCurrent[i] = this.relu(sum); // oppure potresti provare sigmoid(sum) se vuoi valori più "soft"
 		}
 
 		return newCurrent;
@@ -61,7 +54,7 @@ public class ImageGenerator {
 		for (int y = 0; y < this.imageSize; y++) {
 			for (int x = 0; x < this.imageSize; x++) {
 				double pixelValue = pixels[(y * this.imageSize) + x];
-				int value = (int) (pixelValue * 255); // Scala il valore tra 0 e 255
+				int value = (int) (pixelValue * 255);
 				value = Math.max(0, Math.min(255, value)); // Clamp tra 0 e 255
 				raster.setSample(x, y, 0, value);
 			}
@@ -72,6 +65,10 @@ public class ImageGenerator {
 
 	private double relu(double x) {
 		return Math.max(0, x);
+	}
+
+	private double sigmoid(double x) {
+		return 1.0 / (1.0 + Math.exp(-x));
 	}
 
 	public void saveImage(BufferedImage image, String filename) {

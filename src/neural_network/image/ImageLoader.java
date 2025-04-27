@@ -35,20 +35,24 @@ public class ImageLoader {
 					BufferedImage img = ImageIO.read(file);
 					int width = img.getWidth();
 					int height = img.getHeight();
-					System.out.println(
-							"Caricata immagine n. " + i + " (" + width + ", " + height + "): " + file.getName());
-					while (width > 512) {
+
+					if ((width > 512) || (height > 512)) {
 						System.out.println("Troppo grande, la riduco");
-						double scaleFactor = 0.5; // Riduce l'immagine al 50% delle dimensioni originali
+						double scaleFactor = 512.0 / Math.max(width, height); // scala basata sul lato più grande
 						width = (int) (width * scaleFactor);
 						height = (int) (height * scaleFactor);
+						img = ImageConverter.resizeImage(img, width, height, file);
+						// 🔥 Dopo il resize e la sovrascrittura, ricarica dal disco
+						img = ImageIO.read(file);
 					}
-					img = ImageConverter.resizeImage(img, width, height);
 
 					if (img != null) {
 						images.add(img);
-						System.out.println(
-								"Caricata immagine n. " + i + " (" + width + ", " + height + "): " + file.getName());
+						width = img.getWidth();
+						height = img.getHeight();
+
+						System.out.println("Caricata immagine n. " + (i + 1) + " (" + width + ", " + height + "): "
+								+ file.getName());
 					} else {
 						System.err.println("Errore: Impossibile leggere l'immagine " + file.getName());
 					}

@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.imageio.ImageIO;
+
 public class ImageConverter {
 
 	public static void convert(String folderPath) {
@@ -55,16 +57,13 @@ public class ImageConverter {
 		System.out.println("✅ Conversione completata.");
 	}
 
-	/**
-	 * Ridimensiona una BufferedImage alle nuove dimensioni.
-	 *
-	 * @param originalImage L'immagine originale
-	 * @param targetWidth   Larghezza desiderata
-	 * @param targetHeight  Altezza desiderata
-	 * @return L'immagine ridimensionata
-	 */
-	public static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
-		BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+	public static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight,
+			File originalFile) {
+
+		String format = getFormatName(originalFile.getName());
+		int imageType = format.equals("png") ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
+
+		BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, imageType);
 		Graphics2D g2d = resizedImage.createGraphics();
 
 		// Migliore qualità di scaling
@@ -75,6 +74,26 @@ public class ImageConverter {
 		g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
 		g2d.dispose();
 
+		// 🔥 Dopo aver ridimensionato, sovrascrive il file originale
+		try {
+			ImageIO.write(resizedImage, format, originalFile);
+			System.out.println("✔️ Sovrascritta immagine: " + originalFile.getName());
+		} catch (IOException e) {
+			System.err
+					.println("❌ Errore nel sovrascrivere l'immagine " + originalFile.getName() + ": " + e.getMessage());
+		}
+
 		return resizedImage;
+	}
+
+	private static String getFormatName(String filename) {
+		String lower = filename.toLowerCase();
+		if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+			return "jpg";
+		}
+		if (lower.endsWith(".png")) {
+			return "png";
+		}
+		return "png"; // default
 	}
 }

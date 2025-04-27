@@ -13,77 +13,84 @@ import neural_network.image.ImageProcessor;
 public class CatDetector {
 	public static void main(String[] args) {
 
-		// ImageDownloader id = new ImageDownloader();
-
 		try {
-			// Carica il dataset
-			List<DataSample> dataset = loadDataset();
-			Collections.shuffle(dataset);
-
-			// Split training/test
-			int splitIndex = (int) (dataset.size() * 0.8);
-			List<DataSample> trainingData = dataset.subList(0, splitIndex);
-			List<DataSample> testData = dataset.subList(splitIndex, dataset.size());
-
 			// Crea la rete neurale
-			int[] layers = { 2500, 128, 64, 2 };
+			int[] layers = { 2500, 64, 2 };
 			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
 
 			// 🔥 PROVA A CARICARE I PESI
 			boolean loaded = WeightManager.loadWeights(nn);
 
-			if (!loaded) {
-				// Se i pesi non esistono, procedi con l'addestramento
-				System.out.println("🔄 Nessun peso trovato. Inizio addestramento...");
+			List<DataSample> dataset = null;
 
+			if (!loaded) {
+				// Se i pesi non esistono, carica il dataset
+				System.out.println("🔄 Nessun peso trovato. Carico il dataset...");
+
+				dataset = loadDataset();
+				Collections.shuffle(dataset);
+
+				// Split training/test
+				int splitIndex = (int) (dataset.size() * 0.8);
+				List<DataSample> trainingData = dataset.subList(0, splitIndex);
+				List<DataSample> testData = dataset.subList(splitIndex, dataset.size());
+
+				// Addestramento
 				trainNetwork(nn, trainingData, 100);
 
 				// Dopo addestramento, salva i pesi
 				WeightManager.saveWeights(nn);
-
 				System.out.println("💾 Pesi salvati dopo addestramento.");
+
+				// Valutazione
+				evaluateModel(nn, testData);
+
 			} else {
 				System.out.println("⚡ Pesi caricati. Addestramento saltato.");
+
+				// ⚡⚡ Se vuoi, puoi comunque valutare su immagini di test
+				// oppure saltare del tutto il testData se vuoi velocità massima
 			}
 
-			// Valutazione
-			evaluateModel(nn, testData);
+			// Dopo: parte generativa
+			File generationFolder = new File("generation");
+			if (!generationFolder.exists()) {
+				generationFolder.mkdir();
+				System.out.println("Cartella 'generation' creata.");
+			}
 
-			// Test con due nuove immagini
-			// TODO: da migliorare
+			ImageGenerator generator = new ImageGenerator(nn, 50);
+			for (int i = 0; i < 5; i++) {
+				BufferedImage generatedImage = generator.generateCatImage(0.5);
+				String filename = "generation/generated_cat_" + i + ".png";
+				generator.saveImage(generatedImage, filename);
+				System.out.println("Generata immagine: " + filename);
+			}
 
+			// Test singole immagini da URL
+			testSingleImages(nn);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void testSingleImages(NeuralNetwork nn) {
+		try {
 			// gatto:
 			String testUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Siam_lilacpoint.jpg/294px-Siam_lilacpoint.jpg";
-
 			double[] result = processTestImage(testUrl, nn);
 			System.out.println("\nRisultato test (gatto):");
 			System.out.println(result[0] > result[1] ? "L'immagine contiene un gatto!" : "Nessun gatto rilevato.");
 
-			// Non gatto:
+			// non gatto:
 			testUrl = "https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg?w=300";
-
 			result = processTestImage(testUrl, nn);
 			System.out.println("\nRisultato test (non gatto):");
 			System.out.println(result[0] > result[1] ? "L'immagine contiene un gatto!" : "Nessun gatto rilevato.");
 
-			// Parte generativa
-			// Creazione della cartella "generation" se non esiste
-			File generationFolder = new File("generation");
-			if (!generationFolder.exists()) {
-				generationFolder.mkdir(); // Crea la cartella
-				System.out.println("Cartella 'generation' creata.");
-			}
-
-			// Genera 5 immagini di gatti
-			ImageGenerator generator = new ImageGenerator(nn, 28);
-			for (int i = 0; i < 5; i++) {
-				BufferedImage generatedImage = generator.generateCatImage(1.0); // Genera un'immagine
-				String filename = "generation/generated_cat_" + i + ".png"; // Percorso del file
-				generator.saveImage(generatedImage, filename); // Salva l'immagine
-				System.out.println("Generata immagine: " + filename);
-			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("Errore nel test di immagini: " + e.getMessage());
 		}
 	}
 
