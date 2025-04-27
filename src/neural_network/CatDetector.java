@@ -67,12 +67,10 @@ public class CatDetector {
 			}
 
 			ImageGenerator generator = new ImageGenerator(nn, 50);
-			for (int i = 0; i < 5; i++) {
-				BufferedImage generatedImage = generator.generateCatImage(0.5);
-				String filename = "generation/generated_cat_" + i + ".png";
-				generator.saveImage(generatedImage, filename);
-				System.out.println("Generata immagine: " + filename);
-			}
+			BufferedImage generatedImage = generator.generateCatImage();
+			String filename = "generation/generated_cat.png";
+			generator.saveImage(generatedImage, filename);
+			System.out.println("Generata immagine: " + filename);
 
 			// Test singole immagini da URL
 			testSingleImages(nn);

@@ -18,42 +18,58 @@ public class ImageGenerator {
 		this.imageSize = imageSize;
 	}
 
-	public BufferedImage generateCatImage(double randomness) {
-		// Crea un vettore di input casuale con un po' di rumore controllato
-		double[] randomInput = new double[2];
-		for (int i = 0; i < randomInput.length; i++) {
-			randomInput[i] = ((Math.random() * 2) - 1) * randomness; // random tra -randomness e +randomness
-		}
-
-		double[] generatedPixels = this.invertNetwork(randomInput);
-		return this.pixelsToImage(generatedPixels);
+	/**
+	 * Genera un'immagine "ideale" usando direttamente i pesi della rete
+	 */
+	public BufferedImage generateCatImage() {
+		double[] generatedPixels = generateFromWeights();
+		return pixelsToImage(generatedPixels);
 	}
 
-	private double[] invertNetwork(double[] input) {
-		double[][] weights = this.nn.getWeights()[0]; // [2][2500]
-		double[] biases = this.nn.getBiases()[0]; // [2]
+	/**
+	 * Usa i pesi del primo strato per generare l'immagine
+	 */
+	private double[] generateFromWeights() {
+		double[][] weights = nn.getWeights()[0]; // ⚡ Pesi caricati (dimensioni: 128x2500)
+		int inputSize = weights[0].length; // 2500 (larghezza!)
+		int hiddenSize = weights.length; // 128 (altezza!)
 
-		double[] newCurrent = new double[2500];
+		double[] summedInput = new double[inputSize];
 
-		// Applichiamo la trasformazione inversa
-		for (int i = 0; i < 2500; i++) {
+		for (int i = 0; i < inputSize; i++) { // i = pixel
 			double sum = 0.0;
-			for (int j = 0; j < 2; j++) {
-				sum += (weights[j][i] * input[j]) + biases[j]; // ⚡ adesso usiamo anche i bias!
+			for (int j = 0; j < hiddenSize; j++) { // j = hidden neuron
+				sum += weights[j][i]; // ⚡ scambia riga/colonna
 			}
-			newCurrent[i] = this.relu(sum); // oppure potresti provare sigmoid(sum) se vuoi valori più "soft"
+			summedInput[i] = sum;
 		}
 
-		return newCurrent;
+		// Normalizza
+		double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
+		for (double v : summedInput) {
+			if (v < min)
+				min = v;
+			if (v > max)
+				max = v;
+		}
+		for (int i = 0; i < summedInput.length; i++) {
+			summedInput[i] = (summedInput[i] - min) / (max - min);
+		}
+
+		return summedInput;
 	}
 
+	/**
+	 * Converte i pixel normalizzati in una BufferedImage
+	 */
 	private BufferedImage pixelsToImage(double[] pixels) {
-		BufferedImage image = new BufferedImage(this.imageSize, this.imageSize, BufferedImage.TYPE_BYTE_GRAY);
+		BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_BYTE_GRAY);
 		WritableRaster raster = image.getRaster();
 
-		for (int y = 0; y < this.imageSize; y++) {
-			for (int x = 0; x < this.imageSize; x++) {
-				double pixelValue = pixels[(y * this.imageSize) + x];
+		for (int y = 0; y < imageSize; y++) {
+			for (int x = 0; x < imageSize; x++) {
+				int index = y * imageSize + x;
+				double pixelValue = pixels[index];
 				int value = (int) (pixelValue * 255);
 				value = Math.max(0, Math.min(255, value)); // Clamp tra 0 e 255
 				raster.setSample(x, y, 0, value);
@@ -63,14 +79,9 @@ public class ImageGenerator {
 		return image;
 	}
 
-	private double relu(double x) {
-		return Math.max(0, x);
-	}
-
-	private double sigmoid(double x) {
-		return 1.0 / (1.0 + Math.exp(-x));
-	}
-
+	/**
+	 * Salva l'immagine su file
+	 */
 	public void saveImage(BufferedImage image, String filename) {
 		try {
 			File output = new File(filename);
