@@ -11,14 +11,21 @@ import neural_network.image.ImageLoader;
 import neural_network.image.ImageProcessor;
 
 public class CatDetector {
+
+	public static final int INPUT_LAYER_SIZE = 2500;
+	public static final int HIDDEN_LAYER_SIZE = 64;
+
+	public static final String CAT_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Siam_lilacpoint.jpg/294px-Siam_lilacpoint.jpg";
+	public static final String NON_CAT_URL = "https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg?w=300";
+
 	public static void main(String[] args) {
 
 		try {
 			// Crea la rete neurale
-			int[] layers = { 2500, 64, 2 };
+			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, 2 };
 			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
 
-			// 🔥 PROVA A CARICARE I PESI
+			// PROVA A CARICARE I PESI
 			boolean loaded = WeightManager.loadWeights(nn);
 
 			List<DataSample> dataset = null;
@@ -77,15 +84,11 @@ public class CatDetector {
 
 	private static void testSingleImages(NeuralNetwork nn) {
 		try {
-			// gatto:
-			String testUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Siam_lilacpoint.jpg/294px-Siam_lilacpoint.jpg";
-			double[] result = processTestImage(testUrl, nn);
+			double[] result = processTestImage(CAT_URL, nn);
 			System.out.println("\nRisultato test (gatto):");
 			System.out.println(result[0] > result[1] ? "L'immagine contiene un gatto!" : "Nessun gatto rilevato.");
 
-			// non gatto:
-			testUrl = "https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg?w=300";
-			result = processTestImage(testUrl, nn);
+			result = processTestImage(NON_CAT_URL, nn);
 			System.out.println("\nRisultato test (non gatto):");
 			System.out.println(result[0] > result[1] ? "L'immagine contiene un gatto!" : "Nessun gatto rilevato.");
 
@@ -125,7 +128,7 @@ public class CatDetector {
 		for (int i = 0; i < images.size(); i++) {
 
 			double[] pixels = processor.processImage(images.get(i));
-			if ((pixels != null) && (pixels.length == 2500)) {
+			if ((pixels != null) && (pixels.length == INPUT_LAYER_SIZE)) {
 				samples.add(new DataSample(pixels, label));
 			}
 		}
@@ -160,6 +163,6 @@ public class CatDetector {
 		ImageProcessor processor = new ImageProcessor();
 		BufferedImage img = processor.downloadImage(url);
 		double[] pixels = processor.processImage(img);
-		return nn.predict(pixels != null ? pixels : new double[2500]);
+		return nn.predict(pixels != null ? pixels : new double[INPUT_LAYER_SIZE]);
 	}
 }
