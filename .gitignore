@@ -4,6 +4,9 @@
 # Log file
 *.log
 
+# VS Code
+*.code-workspace
+
 # Eclipse file
 .project
 .classpath
