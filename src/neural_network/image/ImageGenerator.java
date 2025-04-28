@@ -19,32 +19,37 @@ public class ImageGenerator {
 	}
 
 	/**
-	 * Genera un'immagine "ideale" usando direttamente i pesi della rete
+	 * Genera un'immagine "ideale" per la classe "gatto" usando anche i pesi
+	 * dell'output
 	 */
 	public BufferedImage generateCatImage() {
-		double[] generatedPixels = generateFromWeights();
+		// Se voglio generare un'immagine che massimizza "gatto", passo outputNeuron =
+		// 0, altrimenti 1.
+		double[] generatedPixels = generateFromWeightsConsideringOutput(0);
 		return pixelsToImage(generatedPixels);
 	}
 
 	/**
-	 * Usa i pesi del primo strato per generare l'immagine
+	 * Usa i pesi input->hidden e hidden->output per generare l'immagine
 	 */
-	private double[] generateFromWeights() {
-		double[][] weights = nn.getWeights()[0]; // ⚡ Pesi caricati (dimensioni: 128x2500)
-		int inputSize = weights[0].length; // 2500 (larghezza!)
-		int hiddenSize = weights.length; // 128 (altezza!)
+	private double[] generateFromWeightsConsideringOutput(int outputNeuron) {
+		double[][] W1 = nn.getWeights()[0]; // Pesi hidden -> input (128 x 2500)
+		double[][] W2 = nn.getWeights()[1]; // Pesi output -> hidden (2 x 128)
+
+		int inputSize = W1[0].length; // 2500
+		int hiddenSize = W1.length; // 128
 
 		double[] summedInput = new double[inputSize];
 
-		for (int i = 0; i < inputSize; i++) { // i = pixel
+		for (int i = 0; i < inputSize; i++) { // Per ogni pixel
 			double sum = 0.0;
-			for (int j = 0; j < hiddenSize; j++) { // j = hidden neuron
-				sum += weights[j][i]; // ⚡ scambia riga/colonna
+			for (int j = 0; j < hiddenSize; j++) { // Per ogni hidden neuron
+				sum += W1[j][i] * W2[outputNeuron][j]; // ⚡ CAMBIATO QUI
 			}
 			summedInput[i] = sum;
 		}
 
-		// Normalizza
+		// Normalizzazione 0-1
 		double min = Double.MAX_VALUE, max = Double.MIN_VALUE;
 		for (double v : summedInput) {
 			if (v < min)
@@ -60,7 +65,7 @@ public class ImageGenerator {
 	}
 
 	/**
-	 * Converte i pixel normalizzati in una BufferedImage
+	 * Converte l'array normalizzato in una BufferedImage
 	 */
 	private BufferedImage pixelsToImage(double[] pixels) {
 		BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_BYTE_GRAY);

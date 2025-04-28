@@ -14,6 +14,7 @@ public class CatDetector {
 
 	public static final int INPUT_LAYER_SIZE = 2500;
 	public static final int HIDDEN_LAYER_SIZE = 64;
+	public static final int OUTPUT_LAYER_SIZE = 2;
 
 	public static final String CAT_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Siam_lilacpoint.jpg/294px-Siam_lilacpoint.jpg";
 	public static final String NON_CAT_URL = "https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg?w=300";
@@ -22,7 +23,7 @@ public class CatDetector {
 
 		try {
 			// Crea la rete neurale
-			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, 2 };
+			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
 			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
 
 			// PROVA A CARICARE I PESI
