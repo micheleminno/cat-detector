@@ -33,8 +33,8 @@ public class ImageGenerator {
 	 * Usa i pesi input->hidden e hidden->output per generare l'immagine
 	 */
 	private double[] generateFromWeightsConsideringOutput(int outputNeuron) {
-		double[][] W1 = nn.getWeights()[0]; // Pesi hidden -> input (128 x 2500)
-		double[][] W2 = nn.getWeights()[1]; // Pesi output -> hidden (2 x 128)
+		double[][] W1 = nn.getWeights()[0]; // Es.: Pesi hidden -> input (128 x 2500)
+		double[][] W2 = nn.getWeights()[1]; // Es.: Pesi output -> hidden (2 x 128)
 
 		int inputSize = W1[0].length; // 2500
 		int hiddenSize = W1.length; // 128
@@ -68,18 +68,28 @@ public class ImageGenerator {
 	 * Converte l'array normalizzato in una BufferedImage
 	 */
 	private BufferedImage pixelsToImage(double[] pixels) {
-		BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_BYTE_GRAY);
+		int totalPixels = pixels.length;
+		int computedSize = (int) Math.round(Math.sqrt(totalPixels));
+
+		if (computedSize * computedSize != totalPixels) {
+			throw new IllegalArgumentException(
+					"❌ Errore: il vettore di pixel (" + totalPixels + ") non corrisponde a un quadrato perfetto!");
+		}
+
+		BufferedImage image = new BufferedImage(computedSize, computedSize, BufferedImage.TYPE_BYTE_GRAY);
 		WritableRaster raster = image.getRaster();
 
-		for (int y = 0; y < imageSize; y++) {
-			for (int x = 0; x < imageSize; x++) {
-				int index = y * imageSize + x;
+		for (int y = 0; y < computedSize; y++) {
+			for (int x = 0; x < computedSize; x++) {
+				int index = y * computedSize + x;
 				double pixelValue = pixels[index];
 				int value = (int) (pixelValue * 255);
 				value = Math.max(0, Math.min(255, value)); // Clamp tra 0 e 255
 				raster.setSample(x, y, 0, value);
 			}
 		}
+
+		System.out.println("✅ Immagine generata di dimensioni: " + computedSize + "x" + computedSize);
 
 		return image;
 	}

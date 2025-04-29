@@ -12,7 +12,7 @@ import neural_network.image.ImageProcessor;
 
 public class CatDetector {
 
-	public static final int INPUT_LAYER_SIZE = 2500;
+	public static final int INPUT_LAYER_SIZE = 10000;
 	public static final int HIDDEN_LAYER_SIZE = 64;
 	public static final int OUTPUT_LAYER_SIZE = 2;
 
@@ -67,11 +67,11 @@ public class CatDetector {
 				System.out.println("Cartella 'generation' creata.");
 			}
 
-			ImageGenerator generator = new ImageGenerator(nn, 50);
+			int imageSize = INPUT_LAYER_SIZE;
+			ImageGenerator generator = new ImageGenerator(nn, imageSize);
 			BufferedImage generatedImage = generator.generateCatImage();
 			String filename = "generation/generated_cat.png";
 			generator.saveImage(generatedImage, filename);
-			System.out.println("Generata immagine: " + filename);
 
 			// Test singole immagini da URL
 			testSingleImages(nn);
