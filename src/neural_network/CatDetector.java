@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import neural_network.image.ImageDownloader;
 import neural_network.image.ImageGenerator;
 import neural_network.image.ImageLoader;
 import neural_network.image.ImageProcessor;
@@ -112,15 +113,23 @@ public class CatDetector {
 		List<BufferedImage> cats = loader.loadImagesFromFolder("cats", imageSize);
 		List<BufferedImage> nonCats = loader.loadImagesFromFolder("non_cats", imageSize);
 
+		int missing = cats.size() - nonCats.size();
+		if (missing > 0) {
+			System.out.printf("📉 Mancano %d non-gatti. Avvio download...\n", missing);
+			ImageDownloader.downloadMoreImages(missing);
+			// ricarica i non_cats dopo il download
+			nonCats = loader.loadImagesFromFolder("non_cats", imageSize);
+		}
+
 		int minSize = Math.min(cats.size(), nonCats.size());
-		System.out.println("⚖️ Bilanciamento automatico: " + minSize + " immagini per ciascuna classe");
+		System.out.println("⚖️  Bilanciamento automatico: " + minSize + " immagini per ciascuna classe");
 
 		List<DataSample> samples = new ArrayList<>();
-
-		// carica solo minSize immagini da ciascuna classe
 		addSamples(samples, cats.subList(0, minSize), processor, new double[] { 1, 0 });
 		addSamples(samples, nonCats.subList(0, minSize), processor, new double[] { 0, 1 });
 
+		System.out.printf("✅  Caricate %d immagini bilanciate: %d gatti, %d non gatti\n", samples.size(), minSize,
+				minSize);
 		return samples;
 	}
 
@@ -129,22 +138,6 @@ public class CatDetector {
 		for (BufferedImage image : images) {
 			double[] pixels = processor.processImage(image);
 			if (pixels != null && pixels.length == INPUT_LAYER_SIZE) {
-				samples.add(new DataSample(pixels, label));
-			}
-		}
-	}
-
-	private static void loadCategory(List<DataSample> samples, int imageSize, String categoryFolder,
-			ImageProcessor processor, double[] label) {
-
-		ImageLoader loader = new ImageLoader();
-
-		List<BufferedImage> images = loader.loadImagesFromFolder(categoryFolder, imageSize);
-
-		for (int i = 0; i < images.size(); i++) {
-
-			double[] pixels = processor.processImage(images.get(i));
-			if ((pixels != null) && (pixels.length == INPUT_LAYER_SIZE)) {
 				samples.add(new DataSample(pixels, label));
 			}
 		}
