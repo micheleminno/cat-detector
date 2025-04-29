@@ -21,47 +21,30 @@ public class CatDetector {
 	public static final String NON_CAT_URL = "https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg?w=300";
 
 	public static void main(String[] args) {
-
 		try {
-			// Crea la rete neurale
 			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
 			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
 
-			// PROVA A CARICARE I PESI
 			boolean loaded = WeightManager.loadWeights(nn);
-
 			List<DataSample> dataset = null;
 
 			if (!loaded) {
-				// Se i pesi non esistono, carica il dataset
-				System.out.println("🔄 Nessun peso trovato. Carico il dataset...");
-
+				System.out.println("\uD83D\uDD04 Nessun peso trovato. Carico il dataset...");
 				dataset = loadDataset(INPUT_LAYER_SIZE);
 				Collections.shuffle(dataset);
 
-				// Split training/test
 				int splitIndex = (int) (dataset.size() * 0.8);
 				List<DataSample> trainingData = dataset.subList(0, splitIndex);
 				List<DataSample> testData = dataset.subList(splitIndex, dataset.size());
 
-				// Addestramento
 				trainNetwork(nn, trainingData, 100);
-
-				// Dopo addestramento, salva i pesi
 				WeightManager.saveWeights(nn);
-				System.out.println("💾 Pesi salvati dopo addestramento.");
-
-				// Valutazione
+				System.out.println("\uD83D\uDCBE Pesi salvati dopo addestramento.");
 				evaluateModel(nn, testData);
-
 			} else {
-				System.out.println("⚡ Pesi caricati. Addestramento saltato.");
-
-				// ⚡⚡ Se vuoi, puoi comunque valutare su immagini di test
-				// oppure saltare del tutto il testData se vuoi velocità massima
+				System.out.println("\u26A1 Pesi caricati. Addestramento saltato.");
 			}
 
-			// Dopo: parte generativa
 			File generationFolder = new File("generation");
 			if (!generationFolder.exists()) {
 				generationFolder.mkdir();
@@ -73,7 +56,6 @@ public class CatDetector {
 			String filename = "generation/generated_cat.png";
 			generator.saveImage(generatedImage, filename);
 
-			// Test singole immagini da URL
 			testSingleImages(nn);
 
 		} catch (Exception e) {
@@ -115,20 +97,19 @@ public class CatDetector {
 
 		int missing = cats.size() - nonCats.size();
 		if (missing > 0) {
-			System.out.printf("📉 Mancano %d non-gatti. Avvio download...\n", missing);
+			System.out.printf("\uD83D\uDD3D Mancano %d non-gatti. Avvio download...\n", missing);
 			ImageDownloader.downloadMoreImages(missing);
-			// ricarica i non_cats dopo il download
 			nonCats = loader.loadImagesFromFolder("non_cats", imageSize);
 		}
 
 		int minSize = Math.min(cats.size(), nonCats.size());
-		System.out.println("⚖️  Bilanciamento automatico: " + minSize + " immagini per ciascuna classe");
+		System.out.println("\u2696\uFE0F  Bilanciamento automatico: " + minSize + " immagini per ciascuna classe");
 
 		List<DataSample> samples = new ArrayList<>();
 		addSamples(samples, cats.subList(0, minSize), processor, new double[] { 1, 0 });
 		addSamples(samples, nonCats.subList(0, minSize), processor, new double[] { 0, 1 });
 
-		System.out.printf("✅  Caricate %d immagini bilanciate: %d gatti, %d non gatti\n", samples.size(), minSize,
+		System.out.printf("\u2705  Caricate %d immagini bilanciate: %d gatti, %d non gatti\n", samples.size(), minSize,
 				minSize);
 		return samples;
 	}
