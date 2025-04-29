@@ -41,7 +41,6 @@ public class ImageLoader {
 						System.out.println("Troppo grande, la riduco");
 
 						img = ImageConverter.resizeImage(img, computedImageX, computedImageX, file);
-
 					}
 
 					if (img != null) {
