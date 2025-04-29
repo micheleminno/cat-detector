@@ -67,8 +67,7 @@ public class CatDetector {
 				System.out.println("Cartella 'generation' creata.");
 			}
 
-			int imageSize = INPUT_LAYER_SIZE;
-			ImageGenerator generator = new ImageGenerator(nn, imageSize);
+			ImageGenerator generator = new ImageGenerator(nn);
 			BufferedImage generatedImage = generator.generateCatImage();
 			String filename = "generation/generated_cat.png";
 			generator.saveImage(generatedImage, filename);

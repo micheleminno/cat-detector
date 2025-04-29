@@ -11,11 +11,9 @@ import neural_network.NeuralNetwork;
 
 public class ImageGenerator {
 	private NeuralNetwork nn;
-	private int imageSize;
 
-	public ImageGenerator(NeuralNetwork nn, int imageSize) {
+	public ImageGenerator(NeuralNetwork nn) {
 		this.nn = nn;
-		this.imageSize = imageSize;
 	}
 
 	/**
@@ -33,8 +31,8 @@ public class ImageGenerator {
 	 * Usa i pesi input->hidden e hidden->output per generare l'immagine
 	 */
 	private double[] generateFromWeightsConsideringOutput(int outputNeuron) {
-		double[][] W1 = nn.getWeights()[0]; // Es.: Pesi hidden -> input (128 x 2500)
-		double[][] W2 = nn.getWeights()[1]; // Es.: Pesi output -> hidden (2 x 128)
+		double[][] W1 = nn.getWeights()[0]; // Es.: Pesi hidden -> input
+		double[][] W2 = nn.getWeights()[1]; // Es.: Pesi output -> hidden
 
 		int inputSize = W1[0].length; // 2500
 		int hiddenSize = W1.length; // 128
@@ -44,7 +42,7 @@ public class ImageGenerator {
 		for (int i = 0; i < inputSize; i++) { // Per ogni pixel
 			double sum = 0.0;
 			for (int j = 0; j < hiddenSize; j++) { // Per ogni hidden neuron
-				sum += W1[j][i] * W2[outputNeuron][j]; // ⚡ CAMBIATO QUI
+				sum += W1[j][i] * W2[outputNeuron][j];
 			}
 			summedInput[i] = sum;
 		}
