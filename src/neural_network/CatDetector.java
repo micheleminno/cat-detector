@@ -1,3 +1,5 @@
+//prova commit Giumbociccio v2
+
 package neural_network;
 
 import java.awt.image.BufferedImage;
@@ -156,6 +158,11 @@ public class CatDetector {
 		return nn.predict(pixels != null ? pixels : new double[INPUT_LAYER_SIZE]);
 	
 	}
+<<<<<<< HEAD
+
+	
+=======
 }
  
  
+>>>>>>> 337f26a4011b9e92ead05b586de7dbfd5ccdd4f0
