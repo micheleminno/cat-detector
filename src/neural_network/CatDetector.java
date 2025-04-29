@@ -155,5 +155,5 @@ public class CatDetector {
 		double[] pixels = processor.processImage(img);
 		return nn.predict(pixels != null ? pixels : new double[INPUT_LAYER_SIZE]);
 	}
-}
 
+	
