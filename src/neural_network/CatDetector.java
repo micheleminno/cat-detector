@@ -106,14 +106,32 @@ public class CatDetector {
 	}
 
 	private static List<DataSample> loadDataset(int imageSize) throws Exception {
-
 		ImageProcessor processor = new ImageProcessor();
+		ImageLoader loader = new ImageLoader();
+
+		List<BufferedImage> cats = loader.loadImagesFromFolder("cats", imageSize);
+		List<BufferedImage> nonCats = loader.loadImagesFromFolder("non_cats", imageSize);
+
+		int minSize = Math.min(cats.size(), nonCats.size());
+		System.out.println("⚖️ Bilanciamento automatico: " + minSize + " immagini per ciascuna classe");
+
 		List<DataSample> samples = new ArrayList<>();
 
-		loadCategory(samples, imageSize, "cats", processor, new double[] { 1, 0 });
-		loadCategory(samples, imageSize, "non_cats", processor, new double[] { 0, 1 });
+		// carica solo minSize immagini da ciascuna classe
+		addSamples(samples, cats.subList(0, minSize), processor, new double[] { 1, 0 });
+		addSamples(samples, nonCats.subList(0, minSize), processor, new double[] { 0, 1 });
 
 		return samples;
+	}
+
+	private static void addSamples(List<DataSample> samples, List<BufferedImage> images, ImageProcessor processor,
+			double[] label) {
+		for (BufferedImage image : images) {
+			double[] pixels = processor.processImage(image);
+			if (pixels != null && pixels.length == INPUT_LAYER_SIZE) {
+				samples.add(new DataSample(pixels, label));
+			}
+		}
 	}
 
 	private static void loadCategory(List<DataSample> samples, int imageSize, String categoryFolder,
