@@ -35,7 +35,7 @@ public class CatDetector {
 				// Se i pesi non esistono, carica il dataset
 				System.out.println("🔄 Nessun peso trovato. Carico il dataset...");
 
-				dataset = loadDataset();
+				dataset = loadDataset(INPUT_LAYER_SIZE);
 				Collections.shuffle(dataset);
 
 				// Split training/test
@@ -105,23 +105,23 @@ public class CatDetector {
 		}
 	}
 
-	private static List<DataSample> loadDataset() throws Exception {
+	private static List<DataSample> loadDataset(int imageSize) throws Exception {
 
 		ImageProcessor processor = new ImageProcessor();
 		List<DataSample> samples = new ArrayList<>();
 
-		loadCategory(samples, "cats", processor, new double[] { 1, 0 });
-		loadCategory(samples, "non_cats", processor, new double[] { 0, 1 });
+		loadCategory(samples, imageSize, "cats", processor, new double[] { 1, 0 });
+		loadCategory(samples, imageSize, "non_cats", processor, new double[] { 0, 1 });
 
 		return samples;
 	}
 
-	private static void loadCategory(List<DataSample> samples, String categoryFolder, ImageProcessor processor,
-			double[] label) {
+	private static void loadCategory(List<DataSample> samples, int imageSize, String categoryFolder,
+			ImageProcessor processor, double[] label) {
 
 		ImageLoader loader = new ImageLoader();
 
-		List<BufferedImage> images = loader.loadImagesFromFolder(categoryFolder);
+		List<BufferedImage> images = loader.loadImagesFromFolder(categoryFolder, imageSize);
 
 		for (int i = 0; i < images.size(); i++) {
 

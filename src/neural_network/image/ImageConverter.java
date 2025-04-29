@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.imageio.ImageIO;
-
 public class ImageConverter {
 
 	public static void convert(String folderPath) {
@@ -75,13 +73,13 @@ public class ImageConverter {
 		g2d.dispose();
 
 		// 🔥 Dopo aver ridimensionato, sovrascrive il file originale
-		try {
-			ImageIO.write(resizedImage, format, originalFile);
-			System.out.println("✔️ Sovrascritta immagine: " + originalFile.getName());
-		} catch (IOException e) {
-			System.err
-					.println("❌ Errore nel sovrascrivere l'immagine " + originalFile.getName() + ": " + e.getMessage());
-		}
+		/*
+		 * try { ImageIO.write(resizedImage, format, originalFile);
+		 * System.out.println("✔️ Sovrascritta immagine: " + originalFile.getName()); }
+		 * catch (IOException e) { System.err
+		 * .println("❌ Errore nel sovrascrivere l'immagine " + originalFile.getName() +
+		 * ": " + e.getMessage()); }
+		 */
 
 		return resizedImage;
 	}

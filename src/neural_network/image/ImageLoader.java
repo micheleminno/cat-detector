@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 
 public class ImageLoader {
 
-	public List<BufferedImage> loadImagesFromFolder(String folderPath) {
+	public List<BufferedImage> loadImagesFromFolder(String folderPath, int imageSize) {
 		List<BufferedImage> images = new ArrayList<>();
 		File folder = new File(folderPath);
 
@@ -35,15 +35,13 @@ public class ImageLoader {
 					BufferedImage img = ImageIO.read(file);
 					int width = img.getWidth();
 					int height = img.getHeight();
+					int computedImageX = (int) Math.round(Math.sqrt(imageSize));
 
-					if ((width > 512) || (height > 512)) {
+					if ((width > computedImageX) || (height > computedImageX)) {
 						System.out.println("Troppo grande, la riduco");
-						double scaleFactor = 512.0 / Math.max(width, height); // scala basata sul lato più grande
-						width = (int) (width * scaleFactor);
-						height = (int) (height * scaleFactor);
-						img = ImageConverter.resizeImage(img, width, height, file);
-						// 🔥 Dopo il resize e la sovrascrittura, ricarica dal disco
-						img = ImageIO.read(file);
+
+						img = ImageConverter.resizeImage(img, computedImageX, computedImageX, file);
+
 					}
 
 					if (img != null) {
