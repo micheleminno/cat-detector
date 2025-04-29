@@ -12,8 +12,8 @@ import neural_network.image.ImageProcessor;
 
 public class CatDetector {
 
-	public static final int INPUT_LAYER_SIZE = 10000;
-	public static final int HIDDEN_LAYER_SIZE = 64;
+	public static final int INPUT_LAYER_SIZE = 100;
+	public static final int HIDDEN_LAYER_SIZE = 6;
 	public static final int OUTPUT_LAYER_SIZE = 2;
 
 	public static final String CAT_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Siam_lilacpoint.jpg/294px-Siam_lilacpoint.jpg";
