@@ -33,21 +33,17 @@ public class ImageLoader {
 
 				try {
 					BufferedImage img = ImageIO.read(file);
-					int width = img.getWidth();
-					int height = img.getHeight();
-					int computedImageX = (int) Math.round(Math.sqrt(imageSize));
-
-					if ((width > computedImageX) || (height > computedImageX)) {
-						System.out.println("Troppo grande, la riduco");
-
-						img = ImageConverter.resizeImage(img, computedImageX, computedImageX, file);
-					}
 
 					if (img != null) {
-						images.add(img);
-						width = img.getWidth();
-						height = img.getHeight();
+						int computedImageX = (int) Math.round(Math.sqrt(imageSize));
 
+						// 🔥 Forza sempre resize, non solo se "troppo grande"
+						img = ImageConverter.resizeImage(img, computedImageX, computedImageX, file);
+
+						images.add(img);
+
+						int width = img.getWidth();
+						int height = img.getHeight();
 						System.out.println("Caricata immagine n. " + (i + 1) + " (" + width + ", " + height + "): "
 								+ file.getName());
 					} else {
