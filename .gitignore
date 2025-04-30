@@ -6,6 +6,7 @@
 
 # VS Code
 *.code-workspace
+launch.json
 
 # Eclipse file
 .project

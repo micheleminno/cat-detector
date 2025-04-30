@@ -26,8 +26,8 @@ public class ImageDownloader {
 	private static final String OUTPUT_FOLDER = "non_cats";
 	private static final String API_URL = "https://api.pexels.com/v1/search";
 
-	private static final String[] QUERIES = { "dog", "rabbit", "teddy bear", "baby face", "stuffed animal",
-			"smiling emoji" };
+	private static final String[] QUERIES = { "dog", "rabbit", "tiger", "lion", "puma",
+			"wolf" };
 
 	public static void main(String[] args) throws Exception {
 		if (API_KEY == null || API_KEY.isEmpty()) {
