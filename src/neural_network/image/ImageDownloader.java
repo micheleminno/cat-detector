@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
@@ -25,9 +26,7 @@ public class ImageDownloader {
 	private static final String API_KEY = System.getenv("PEXELS_API_KEY");
 	private static final String OUTPUT_FOLDER = "non_cats";
 	private static final String API_URL = "https://api.pexels.com/v1/search";
-
-	private static final String[] QUERIES = { "dog", "rabbit", "tiger", "lion", "puma",
-			"wolf" };
+	private static final String[] QUERIES = { "dog", "rabbit", "tiger", "lion", "puma", "wolf" };
 
 	public static void main(String[] args) throws Exception {
 		if (API_KEY == null || API_KEY.isEmpty()) {
@@ -41,13 +40,16 @@ public class ImageDownloader {
 		Files.createDirectories(Paths.get(OUTPUT_FOLDER));
 		int totalDownloaded = 0;
 		int queryIndex = 0;
+		int currentPage = 1;
+		int perPage = 50;
+		Random random = new Random();
 
 		while (totalDownloaded < howMany) {
 			String query = QUERIES[queryIndex % QUERIES.length];
 			queryIndex++;
 
-			System.out.println("🔍 Query: " + query);
-			List<String> urls = searchPexelsImageUrls(query, 80); // chiediamo più immagini possibili
+			System.out.println("\uD83D\uDD0D Query: " + query + " (pagina " + currentPage + ")");
+			List<String> urls = searchPexelsImageUrls(query, perPage, currentPage);
 
 			for (String url : urls) {
 				if (totalDownloaded >= howMany)
@@ -60,20 +62,20 @@ public class ImageDownloader {
 					System.err.println("⚠️  Errore nel download: " + e.getMessage());
 				}
 
-				// piccola pausa per evitare blocchi lato server
 				Thread.sleep(300);
 			}
 
+			currentPage = 1 + random.nextInt(20); // da 1 a 20
 			Thread.sleep(500);
 		}
 
 		cleanUnreadableImages(OUTPUT_FOLDER);
-		System.out.println("📦 Download terminato: " + totalDownloaded + " immagini scaricate.");
+		System.out.println("\uD83D\uDCE6 Download terminato: " + totalDownloaded + " immagini scaricate.");
 	}
 
-	private static List<String> searchPexelsImageUrls(String query, int limit) throws IOException {
+	private static List<String> searchPexelsImageUrls(String query, int limit, int page) throws IOException {
 		List<String> urls = new ArrayList<>();
-		String fullUrl = API_URL + "?query=" + URLEncoder.encode(query, "UTF-8") + "&per_page=" + limit;
+		String fullUrl = API_URL + "?query=" + URLEncoder.encode(query, "UTF-8") + "&per_page=" + limit + "&page=" + page;
 
 		HttpURLConnection conn = (HttpURLConnection) new URL(fullUrl).openConnection();
 		conn.setRequestProperty("Authorization", API_KEY);
@@ -110,8 +112,7 @@ public class ImageDownloader {
 		conn.setRequestProperty("Referer", "https://www.pexels.com");
 
 		if (conn.getResponseCode() != 200) {
-			throw new IOException(
-					"Server returned HTTP response code: " + conn.getResponseCode() + " for URL: " + imageUrl);
+			throw new IOException("Server returned HTTP response code: " + conn.getResponseCode() + " for URL: " + imageUrl);
 		}
 
 		try (InputStream in = conn.getInputStream()) {
