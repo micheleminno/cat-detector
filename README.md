@@ -43,7 +43,7 @@ Bisogna aggiungere in file 'launch.json' così strutturato:
 
 ```
 
-e in file .configuration così strutturato
+e in file .classpath così strutturato
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
