@@ -5,7 +5,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 import neural_network.image.ImageDownloader;
 import neural_network.image.ImageGenerator;
@@ -22,64 +21,52 @@ public class CatDetector {
 	public static final String NON_CAT_URL = "https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg?w=300";
 
 	public static final String WEIGHTS_FILE_NAME = "cat-detector-weights.json";
-	public static void main(String[] args) {
 
-		@SuppressWarnings("resource")
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Benvenuto! Seleziona una modalità:");
-		System.out.println("1. Cat Detector (con immagini)");
-		System.out.println("2. Somma modulo 97 (rete neurale)");
-		System.out.print("Scelta: ");
+	public static void run() {
 
-		int scelta = scanner.nextInt();
-		if (scelta == 1) {
+		try {
+			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
+			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
 
-			try {
-				int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
-				NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
+			boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
+			List<DataSample> dataset = null;
 
-				boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
-				List<DataSample> dataset = null;
+			if (!loaded) {
+				System.out.println("\uD83D\uDD04 Nessun peso trovato. Carico il dataset...");
+				dataset = loadDataset(INPUT_LAYER_SIZE);
+				Collections.shuffle(dataset);
 
-				if (!loaded) {
-					System.out.println("\uD83D\uDD04 Nessun peso trovato. Carico il dataset...");
-					dataset = loadDataset(INPUT_LAYER_SIZE);
-					Collections.shuffle(dataset);
+				int splitIndex = (int) (dataset.size() * 0.8);
+				List<DataSample> trainingData = dataset.subList(0, splitIndex);
+				List<DataSample> testData = dataset.subList(splitIndex, dataset.size());
 
-					int splitIndex = (int) (dataset.size() * 0.8);
-					List<DataSample> trainingData = dataset.subList(0, splitIndex);
-					List<DataSample> testData = dataset.subList(splitIndex, dataset.size());
-
-					trainNetwork(nn, trainingData, 100);
-					WeightManager.saveWeights(nn, WEIGHTS_FILE_NAME);
-					System.out.println("\uD83D\uDCBE Pesi salvati dopo addestramento.");
-					evaluateModel(nn, testData);
-				} else {
-					System.out.println("\u26A1 Pesi caricati. Addestramento saltato.");
-				}
-
-				File generationFolder = new File("generation");
-				if (!generationFolder.exists()) {
-					generationFolder.mkdir();
-					System.out.println("Cartella 'generation' creata.");
-				}
-
-				ImageGenerator generator = new ImageGenerator(nn);
-				BufferedImage generatedImage = generator.generateCatImage();
-				String filename = "generation/generated_cat.png";
-				generator.saveImage(generatedImage, filename);
-
-				testSingleImages(nn);
-
-			} catch (Exception e) {
-				e.printStackTrace();
+				trainNetwork(nn, trainingData, 100);
+				WeightManager.saveWeights(nn, WEIGHTS_FILE_NAME);
+				System.out.println("\uD83D\uDCBE Pesi salvati dopo addestramento.");
+				evaluateModel(nn, testData);
+			} else {
+				System.out.println("\u26A1 Pesi caricati. Addestramento saltato.");
 			}
-		} else if (scelta == 2) {
-			Modulo97Trainer.run();
-		} else {
-			System.out.println("Scelta non valida.");
 
+			File generationFolder = new File("generation");
+			if (!generationFolder.exists()) {
+				generationFolder.mkdir();
+				System.out.println("Cartella 'generation' creata.");
+			}
+
+			ImageGenerator generator = new ImageGenerator(nn);
+			BufferedImage generatedImage = generator.generateCatImage();
+			String filename = "generation/generated_cat.png";
+			generator.saveImage(generatedImage, filename);
+
+			testSingleImages(nn);
+
+		} catch (
+
+		Exception e) {
+			e.printStackTrace();
 		}
+
 	}
 
 	private static void testSingleImages(NeuralNetwork nn) {
