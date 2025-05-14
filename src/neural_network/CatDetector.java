@@ -22,6 +22,8 @@ public class CatDetector {
 	public static final String NON_CAT_URL = "https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg?w=300";
 
 	public static void main(String[] args) {
+		
+		@SuppressWarnings("resource")
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Benvenuto! Seleziona una modalità:");
 		System.out.println("1. Cat Detector (con immagini)");
