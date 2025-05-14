@@ -13,9 +13,8 @@ import org.json.JSONObject;
 public class WeightManager {
 
 	private static final String WEIGHTS_FOLDER = "weights";
-	private static final String WEIGHTS_FILE = "weights.json";
-
-	public static void saveWeights(NeuralNetwork network) {
+	
+	public static void saveWeights(NeuralNetwork network, String fileName) {
 		try {
 			File folder = new File(WEIGHTS_FOLDER);
 			if (!folder.exists()) {
@@ -51,18 +50,19 @@ public class WeightManager {
 			json.put("weights", weightsArray);
 			json.put("biases", biasesArray);
 
-			try (FileWriter writer = new FileWriter(new File(folder, WEIGHTS_FILE))) {
+			try (FileWriter writer = new FileWriter(new File(folder, fileName))) {
 				writer.write(json.toString(4));
 			}
 
-			System.out.println("💾 Pesi e bias salvati in " + WEIGHTS_FOLDER + "/" + WEIGHTS_FILE);
+			System.out.println("💾 Pesi e bias salvati in " + WEIGHTS_FOLDER + "/" + fileName);
 		} catch (IOException e) {
 			System.err.println("Errore nel salvataggio dei pesi: " + e.getMessage());
 		}
 	}
 
-	public static boolean loadWeights(NeuralNetwork network) {
-		File file = new File(WEIGHTS_FOLDER, WEIGHTS_FILE);
+	public static boolean loadWeights(NeuralNetwork network, String fileName) {
+		
+		File file = new File(WEIGHTS_FOLDER, fileName);
 		if (!file.exists()) {
 			System.out.println("❌ File pesi non trovato. Procedo con addestramento...");
 			return false;
@@ -103,7 +103,7 @@ public class WeightManager {
 			network.setWeights(weights);
 			network.setBiases(biases);
 
-			System.out.println("✅ Pesi e bias caricati da " + WEIGHTS_FOLDER + "/" + WEIGHTS_FILE);
+			System.out.println("✅ Pesi e bias caricati da " + WEIGHTS_FOLDER + "/" + fileName);
 			return true;
 		} catch (IOException e) {
 			System.err.println("Errore nel caricamento dei pesi: " + e.getMessage());

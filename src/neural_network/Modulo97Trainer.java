@@ -10,12 +10,16 @@ public class Modulo97Trainer {
 	public static final int HIDDEN_LAYER_SIZE = 1000;
 	public static final int OUTPUT_LAYER_SIZE = 1;
     public static final int EPOCHS = 100;
+
+    public static final String WEIGHTS_FILE_NAME = "modulo97-weights.json";
+
+
     public static void run() {
         try {
 			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
 			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
 
-			boolean loaded = WeightManager.loadWeights(nn);
+			boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
 			List<DataSampleModulo97> dataset = null;
 
 			if (!loaded) {
@@ -28,7 +32,7 @@ public class Modulo97Trainer {
 				List<DataSampleModulo97> testData = dataset.subList(splitIndex, dataset.size());
 
 				trainNetwork(nn, trainingData);
-				WeightManager.saveWeights(nn);
+				WeightManager.saveWeights(nn, WEIGHTS_FILE_NAME);
 				System.out.println("\uD83D\uDCBE Pesi salvati dopo addestramento.");
 				evaluateModel(nn, testData);
 			} else {

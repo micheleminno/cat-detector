@@ -21,8 +21,9 @@ public class CatDetector {
 	public static final String CAT_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Siam_lilacpoint.jpg/294px-Siam_lilacpoint.jpg";
 	public static final String NON_CAT_URL = "https://cdn.britannica.com/92/212692-050-D53981F5/labradoodle-dog-stick-running-grass.jpg?w=300";
 
+	public static final String WEIGHTS_FILE_NAME = "cat-detector-weights.json";
 	public static void main(String[] args) {
-		
+
 		@SuppressWarnings("resource")
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Benvenuto! Seleziona una modalità:");
@@ -37,7 +38,7 @@ public class CatDetector {
 				int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
 				NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
 
-				boolean loaded = WeightManager.loadWeights(nn);
+				boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
 				List<DataSample> dataset = null;
 
 				if (!loaded) {
@@ -50,7 +51,7 @@ public class CatDetector {
 					List<DataSample> testData = dataset.subList(splitIndex, dataset.size());
 
 					trainNetwork(nn, trainingData, 100);
-					WeightManager.saveWeights(nn);
+					WeightManager.saveWeights(nn, WEIGHTS_FILE_NAME);
 					System.out.println("\uD83D\uDCBE Pesi salvati dopo addestramento.");
 					evaluateModel(nn, testData);
 				} else {
