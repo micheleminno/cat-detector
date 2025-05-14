@@ -7,7 +7,7 @@ import neural_network.model.*;
 public class Modulo97Trainer {
 
     public static final int INPUT_LAYER_SIZE = 2;
-	public static final int HIDDEN_LAYER_SIZE = 1000;
+	public static final int HIDDEN_LAYER_SIZE = 2;
 	public static final int OUTPUT_LAYER_SIZE = 1;
     public static final int EPOCHS = 100;
 
