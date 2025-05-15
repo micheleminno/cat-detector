@@ -22,7 +22,7 @@ public class CatDetector {
 
 	public static final String WEIGHTS_FILE_NAME = "cat-detector-weights.json";
 
-	public static void run() {
+	public static void run(boolean addestramento) {
 
 		try {
 			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
@@ -31,8 +31,8 @@ public class CatDetector {
 			boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
 			List<DataSample> dataset = null;
 
-			if (!loaded) {
-				System.out.println("\uD83D\uDD04 Nessun peso trovato. Carico il dataset...");
+			if ((!loaded && !addestramento) || addestramento) {
+				System.out.println("\uD83D\uDD04 Addestramento iniziato. Carico il dataset...");
 				dataset = loadDataset(INPUT_LAYER_SIZE);
 				Collections.shuffle(dataset);
 

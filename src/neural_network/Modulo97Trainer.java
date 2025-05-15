@@ -9,12 +9,12 @@ public class Modulo97Trainer {
     public static final int INPUT_LAYER_SIZE = 2;
 	public static final int HIDDEN_LAYER_SIZE = 2;
 	public static final int OUTPUT_LAYER_SIZE = 1;
-    public static final int EPOCHS = 100;
+    public static final int EPOCHS = 10000;
 
     public static final String WEIGHTS_FILE_NAME = "modulo97-weights.json";
 
 
-    public static void run() {
+    public static void run(boolean addestramento) {
         try {
 			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
 			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
@@ -22,11 +22,11 @@ public class Modulo97Trainer {
 			boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
 			List<DataSampleModulo97> dataset = null;
 
-			if (!loaded) {
-				System.out.println("\uD83D\uDD04 Nessun peso trovato. Carico il dataset...");
+			if ((!loaded && !addestramento) || addestramento) {
+				System.out.println("\uD83D\uDD04 Addestramento iniziato. Carico il dataset...");
 				dataset = loadDataset(INPUT_LAYER_SIZE);
 				Collections.shuffle(dataset);
-
+ 
 				int splitIndex = (int) (dataset.size() * 0.8);
 				List<DataSampleModulo97> trainingData = dataset.subList(0, splitIndex);
 				List<DataSampleModulo97> testData = dataset.subList(splitIndex, dataset.size());
