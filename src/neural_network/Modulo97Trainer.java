@@ -7,11 +7,12 @@ import neural_network.model.*;
 public class Modulo97Trainer {
 
     public static final int INPUT_LAYER_SIZE = 2;
-	public static final int HIDDEN_LAYER_SIZE = 2;
+	public static final int HIDDEN_LAYER_SIZE = 3;
 	public static final int OUTPUT_LAYER_SIZE = 1;
-    public static final int EPOCHS = 10000;
+    public static final int EPOCHS = 100000;
 
     public static final String WEIGHTS_FILE_NAME = "modulo97-weights.json";
+	private static final int SAMPLES_NUMBER = 1000;
 
 
     public static void run(boolean addestramento) {
@@ -20,11 +21,26 @@ public class Modulo97Trainer {
 			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
 
 			boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
+
+			if (loaded) {
+				double[][][] weights = nn.getWeights();
+				for (int i = 0; i < weights.length; i++) {
+					if (weights[i].length != layers[i]) {
+						throw new RuntimeException("Struttura dei pesi errata: weights[" + i + "].length = " + weights[i].length + " invece di " + layers[i]);
+					}
+					for (int j = 0; j < weights[i].length; j++) {
+						if (weights[i][j].length != layers[i + 1]) {
+							throw new RuntimeException("Struttura dei pesi errata: weights[" + i + "][" + j + "].length = " + weights[i][j].length + " invece di " + layers[i + 1]);
+						}
+					}
+				}
+			}
+
 			List<DataSampleModulo97> dataset = null;
 
 			if ((!loaded && !addestramento) || addestramento) {
 				System.out.println("\uD83D\uDD04 Addestramento iniziato. Carico il dataset...");
-				dataset = loadDataset(INPUT_LAYER_SIZE);
+				dataset = loadDataset(SAMPLES_NUMBER);
 				Collections.shuffle(dataset);
  
 				int splitIndex = (int) (dataset.size() * 0.8);
@@ -61,8 +77,8 @@ public class Modulo97Trainer {
     }
 
     private static void trainNetwork(NeuralNetwork nn, List<DataSampleModulo97> trainingData) {
-        int epochs = EPOCHS;
-        for (int epoch = 0; epoch < epochs; epoch++) {
+
+        for (int epoch = 0; epoch < EPOCHS; epoch++) {
 			for (DataSampleModulo97 sample : trainingData) {
                 double[] arrayInput = {sample.getNumero1(), sample.getNumero2()};
                 double[] arrayOutput = {sample.getSomma()};
@@ -74,10 +90,10 @@ public class Modulo97Trainer {
 		}
     }
 
-    private static List<DataSampleModulo97> loadDataset(int inputLayerSize) {
+    private static List<DataSampleModulo97> loadDataset(int samplesNumber) {
         Random r = new Random();
         List<DataSampleModulo97> samples = new ArrayList<>();
-        for(int i =0; i < 100000; i++){
+        for(int i =0; i < samplesNumber; i++){
             int numero1 = r.nextInt(100);
             int numero2 = r.nextInt(100);
             int somma = (numero1 + numero2 ) % 97;
