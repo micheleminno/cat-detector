@@ -50,7 +50,12 @@ public class NeuralNetwork {
 			for (int k = 0; k < input.length; k++) {
 				sum += layerWeights[k][j] * input[k]; // peso da input k a output j
 			}
-			output[j] = this.relu(sum); // Funzione di attivazione ReLU
+			// usa sigmoid solo sull'ultimo layer
+			if (layerBiases.length == 1) {
+				output[j] = this.sigmoid(sum); // layer di output
+			} else {
+				output[j] = this.relu(sum);    // layer nascosti
+			}
 		}
 		return output;
 	}
@@ -86,7 +91,14 @@ public class NeuralNetwork {
 				for (int k = 0; k < this.layers[i + 2]; k++) {
 					error += errors[i + 1][k] * this.weights[i + 1][j][k];
 				}
-				errors[i][j] = error * this.reluDerivative(activations[i + 1][j]);
+				if (i == errors.length - 1) {
+					// Derivata sigmoid per l'output
+					errors[i][j] = error * this.sigmoidDerivative(activations[i + 1][j]);
+				} else {
+					// Derivata ReLU per i layer nascosti
+					errors[i][j] = error * this.reluDerivative(activations[i + 1][j]);
+				}
+
 			}
 		}
 
@@ -110,6 +122,15 @@ public class NeuralNetwork {
 	private double reluDerivative(double x) {
 		return x > 0 ? 1 : 0;
 	}
+
+	private double sigmoid(double x) {
+		return 1.0 / (1.0 + Math.exp(-x));
+	}
+
+	private double sigmoidDerivative(double sigmoidOutput) {
+		return sigmoidOutput * (1 - sigmoidOutput);
+	}
+
 
 	// Getter/Setter
 	public double[][][] getWeights() {

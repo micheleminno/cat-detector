@@ -63,10 +63,14 @@ public class Modulo97Trainer {
     private static void evaluateModel(NeuralNetwork nn, List<DataSampleModulo97> testData) {
         int correct = 0;
 		for (DataSampleModulo97 sample : testData) {
-            double[] arrayInput = {sample.getNumero1(), sample.getNumero2()};
+            double[] arrayInput = {
+				sample.getNumero1() / 96.0,
+				sample.getNumero2() / 96.0
+			};
+
             double[] arrayOutput = {sample.getSomma()};
 			double[] output = nn.predict(arrayInput);
-			int predicted = (int) output[0];
+			int predicted = (int) Math.round(output[0] * 96);
 			int actual = (int) arrayOutput[0];
 			if (predicted == actual) {
 				correct++;
@@ -80,8 +84,11 @@ public class Modulo97Trainer {
 
         for (int epoch = 0; epoch < EPOCHS; epoch++) {
 			for (DataSampleModulo97 sample : trainingData) {
-                double[] arrayInput = {sample.getNumero1(), sample.getNumero2()};
-                double[] arrayOutput = {sample.getSomma()};
+				double[] arrayInput = {
+					sample.getNumero1() / 96.0,
+					sample.getNumero2() / 96.0
+				};
+				double[] arrayOutput = { sample.getSomma() / 96.0 };
 				nn.train(arrayInput, arrayOutput);
 			}
 			if ((epoch % 10) == 0) {
