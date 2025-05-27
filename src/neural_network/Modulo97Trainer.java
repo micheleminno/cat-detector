@@ -7,9 +7,9 @@ import neural_network.model.*;
 public class Modulo97Trainer {
 
     public static final int INPUT_LAYER_SIZE = 2;
-	public static final int HIDDEN_LAYER_SIZE = 3;
+	public static final int HIDDEN_LAYER_SIZE = 100;
 	public static final int OUTPUT_LAYER_SIZE = 1;
-    public static final int EPOCHS = 100000;
+    public static final int EPOCHS = 10000;
 
     public static final String WEIGHTS_FILE_NAME = "modulo97-weights.json";
 	private static final int SAMPLES_NUMBER = 1000;
@@ -19,26 +19,26 @@ public class Modulo97Trainer {
         try {
 			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
 			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
-
-			boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
-
-			if (loaded) {
-				double[][][] weights = nn.getWeights();
-				for (int i = 0; i < weights.length; i++) {
-					if (weights[i].length != layers[i]) {
-						throw new RuntimeException("Struttura dei pesi errata: weights[" + i + "].length = " + weights[i].length + " invece di " + layers[i]);
-					}
-					for (int j = 0; j < weights[i].length; j++) {
-						if (weights[i][j].length != layers[i + 1]) {
-							throw new RuntimeException("Struttura dei pesi errata: weights[" + i + "][" + j + "].length = " + weights[i][j].length + " invece di " + layers[i + 1]);
-						}
-					}
-				}
-			}
-
 			List<DataSampleModulo97> dataset = null;
 
-			if ((!loaded && !addestramento) || addestramento) {
+			if(!addestramento) {
+				boolean loaded = WeightManager.loadWeights(nn, WEIGHTS_FILE_NAME);
+
+				if (loaded) {
+					double[][][] weights = nn.getWeights();
+					for (int i = 0; i < weights.length; i++) {
+						if (weights[i].length != layers[i]) {
+							throw new RuntimeException("Struttura dei pesi errata: weights[" + i + "].length = " + weights[i].length + " invece di " + layers[i]);
+						}
+						for (int j = 0; j < weights[i].length; j++) {
+							if (weights[i][j].length != layers[i + 1]) {
+								throw new RuntimeException("Struttura dei pesi errata: weights[" + i + "][" + j + "].length = " + weights[i][j].length + " invece di " + layers[i + 1]);
+							}
+						}
+					}
+					System.out.println("\u26A1 Pesi caricati. Addestramento saltato.");
+				}
+			} else {
 				System.out.println("\uD83D\uDD04 Addestramento iniziato. Carico il dataset...");
 				dataset = loadDataset(SAMPLES_NUMBER);
 				Collections.shuffle(dataset);
@@ -51,9 +51,7 @@ public class Modulo97Trainer {
 				WeightManager.saveWeights(nn, WEIGHTS_FILE_NAME);
 				System.out.println("\uD83D\uDCBE Pesi salvati dopo addestramento.");
 				evaluateModel(nn, testData);
-			} else {
-				System.out.println("\u26A1 Pesi caricati. Addestramento saltato.");
-			}
+			} 
 
 		} catch (Exception e) {
 			e.printStackTrace();
