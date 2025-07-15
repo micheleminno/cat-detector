@@ -7,18 +7,18 @@ import neural_network.model.*;
 public class Modulo97Trainer {
 
     public static final int INPUT_LAYER_SIZE = 2;
-	public static final int HIDDEN_LAYER_SIZE = 100;
+	public static final int HIDDEN_LAYER_SIZE = 128;
 	public static final int OUTPUT_LAYER_SIZE = 1;
-    public static final int EPOCHS = 10000;
+    public static final int EPOCHS = 12000;
 
     public static final String WEIGHTS_FILE_NAME = "modulo97-weights.json";
-	private static final int SAMPLES_NUMBER = 1000;
+	private static final int SAMPLES_NUMBER = 9409;
 
 
     public static void run(boolean addestramento) {
         try {
 			int[] layers = { INPUT_LAYER_SIZE, HIDDEN_LAYER_SIZE, OUTPUT_LAYER_SIZE };
-			NeuralNetwork nn = new NeuralNetwork(layers, 0.01);
+			NeuralNetwork nn = new NeuralNetwork(layers, 0.0001);
 			List<DataSampleModulo97> dataset = null;
 
 			if(!addestramento) {
